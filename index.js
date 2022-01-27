@@ -20,6 +20,7 @@ let data = {
 //Vanilla JS - https://www.cat-in-web.ru/vanilla-js/
 //Date time util - https://momentjs.com/ https://cdnjs.com/libraries/moment.js
 //Richard Feynman - https://habr.com/ru/company/getmeit/blog/646085/
+//Excel file - https://stackoverflow.com/questions/43728201/how-to-read-xlsx-and-xls-files-using-c-sharp-and-oledbconnection
 
 const
     leftdiv         = document.querySelector('#left-div'),
@@ -57,30 +58,110 @@ const
 //     console.log(potentialMatches)
 //     console.log(match.route.view())
 // }
+
 const rowText = tableRow => {
     const id = tableRow.childNodes[3].innerHTML
-    console.log(id)
+    //console.log(id)
     return id
 }
 
 const setRowsAction = tblRows => { 
-    //debugger
-    //console.log(tblRows.length)
     for(const r of tblRows ){
         r.onclick = function() {
             rowText(this)
         }
-        //console.log(r)
     }
-    //tblRows.forEach(r => {console.log(r)})
-    //tblRows.forEach(r => {console.log(r)}) 
 }
 
 const setActionForAllRows = () => {
     document.querySelectorAll('table').forEach(t => setRowsAction(t.rows))
 }
+//Checkbox section
+const checkboxAction = (e) => 
+{
+    const chbRole = e.target.getAttribute('data-parent')
+    console.log(`Checkbox role is ${chbRole}`)
+    const isChecked = e.target.checked
+    if (chbRole === 'main') {
+        const chbContainerPosition = e.target.getAttribute('data-position')
+        document.querySelectorAll(`.chb${chbContainerPosition}`).forEach(c => {
+            c.checked = isChecked
+            document.querySelectorAll(`.chbheader-${chbContainerPosition}`).forEach(m => {
+                m.checked = isChecked
+            })
+        }) 
+    } else {
+        let selectedChild = 0
+        const 
+            className               = e.target.getAttribute('class'),
+            chbContainerPosition    = e.target.getAttribute('data-position'),
+            id                      = e.target.getAttribute('id'),
+            totalItems              = document.querySelectorAll(`.${className}`).length,
+            child                   = document.querySelectorAll(`.${className}`),
+            chbMain                 = document.querySelectorAll(`.chbheader-${chbContainerPosition}`)
+
+        document.querySelectorAll(`#${id}`).forEach(c => {
+            c.checked = isChecked
+        })
+
+        for(let i = 0; i < totalItems; i++) {
+            selectedChild += child[i].checked
+        }
+
+        if (selectedChild === totalItems) {
+            chbMain.forEach(c => {
+                c.indeterminate = false
+                c.checked = true
+            })
+        } else { 
+            if (selectedChild ===0) {
+                chbMain.forEach(c => {
+                    c.indeterminate = false
+                    c.checked = false
+                }) 
+            } else {
+                chbMain.forEach(c => {
+                    c.indeterminate = true
+                    c.checked = false
+                })
+            }
+        }
+
+        console.log(`selected child ${selectedChild}`)
+        console.log(className)
+        console.log(id)
+        console.log(totalItems)
+        console.log(document.querySelectorAll(`#${id}`).length)
+    }
+
+    console.log(e.target.getAttribute('class'))
+    //let parentNode = this.parentNode
+    //console.log(this.getAttribute('class'))
+}
+
+const processCheckboxes = () => 
+{
+    const checkBoxes = document.querySelectorAll('input[type="checkbox"]')
+    for(let i = 0; i < checkBoxes.length; i++)
+    {
+        checkBoxes[i].removeEventListener('change', checkboxAction)
+    }
+    for(let i = 0; i < checkBoxes.length; i++)
+    {
+        checkBoxes[i].addEventListener('change', checkboxAction)
+    }
+}
+
+//const checkBoxes = document.querySelectorAll('input[type="checkbox"],[data-position="left"]')
 
 
+const nodeArray = (selector, parent=document) => [].slice.call(parent.querySelectorAll(selector));
+const refreshTable = container => 
+{
+    container.innerHTML = ''
+    renderTable(container)
+    processCheckboxes()
+}
 const renderTable = container => {
     const position = container.getAttribute("data-position")
     let btnCode
@@ -93,7 +174,14 @@ const renderTable = container => {
     }
     const dataMap = data[position].map(
                             x => `<tr>
-                                        <td><input type="checkbox"/></td>
+                                        <td>
+                                            <input 
+                                                type="checkbox" 
+                                                class="chb${position}" 
+                                                id="chb-${x.id}"
+                                                data-parent="chbheader-${position}"
+                                                data-position="${position}"/>
+                                        </td>
                                         <td>${x.id}</td>
                                         <td>${x.valname}</td>
                                         <td>${x.amount}</td>
@@ -109,7 +197,13 @@ const renderTable = container => {
     template.innerHTML = `<table class="table table-bordered tabel-sm cellpadding="0">
                                     <thead>
                                         <tr>
-                                            <th><input type="checkbox"/></th>
+                                            <th>
+                                                <input 
+                                                    type="checkbox" 
+                                                    class="chbheader-${position}" 
+                                                    data-parent="main"
+                                                    data-position="${position}"/>
+                                            </th>
                                             <th>id</th>
                                             <th>name</th>
                                             <th>amount</t>
@@ -126,34 +220,35 @@ const renderTable = container => {
 }
 
 const renderTables = () => {
-    [leftdiv, centerdiv, rightdiv, gridcontainer].forEach(renderTable)
+    [leftdiv, centerdiv, rightdiv, gridcontainer].forEach(refreshTable)
     //Example to learn! - [leftdiv,centerdiv, rightdiv, gridcontainer].forEach(c => renderTable(c))
 }
 const selectTab = id => {
     document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'))
-    console.log(`#${id}`)
+    //console.log(`#${id}`)
     document.querySelectorAll(`#${id}`).forEach(item => item.classList.add('active'))
 }
 
 const push = event => {
     // Get id attribute of the button or link clicked
     const id = event.target.id
-    console.log(`ID = ${id}`)
-    console.log(event.target)
+    //console.log(`ID = ${id}`)
+    //console.log(event.target)
     const position = event.target.getAttribute('data-link')
     gridcontainer.innerHTML = ''
     gridcontainer.setAttribute('data-position', position)
-    console.log(`${event} - ${id}`)
+    //console.log(`${event} - ${id}`)
     selectTab(id)
     renderTables()
     setActionForAllRows()
+    //processCheckboxes()
     window.history.pushState({ id }, ``, `/${position}`);
 }
 
 import { genDataForGrid, genNewDataForGrid } from './dataproc.js'
 
 window.oninvalid = () => {
-    console.log('oninvalid')
+    //console.log('oninvalid')
 }
 
 window.onerror = event => {
@@ -161,7 +256,7 @@ window.onerror = event => {
     console.log(`Error event - ${event}`)
 }
 window.onload = event => {
-    console.log(event)
+    //console.log(event)
     //Generate initial data for all grids
     data = genNewDataForGrid()
     renderTables()
@@ -170,6 +265,7 @@ window.onload = event => {
     tabRight.addEventListener('click', event => { push(event) })
     setActionForAllRows()
 
+    processCheckboxes()    
 
 
     // renderTable(leftdiv)
@@ -218,7 +314,6 @@ window.onload = event => {
     // })
     // tabCenter.addEventListener('click', showCenter)
     // tabRight.addEventListener('click', showRight)
-
 }
 window.genDataForGrid = genDataForGrid
 window.genNewDataForGrid = genNewDataForGrid

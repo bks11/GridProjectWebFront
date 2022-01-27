@@ -45,7 +45,7 @@ const genGridDataItem = (gridPosition) =>
 }
 const genDataForGrid = gridPosition => 
 {   
-    const alterResult = Array.from({length: 30}, () =>  genGridDataItem(gridPosition))
+    const alterResult = Array.from({length: 3}, () =>  genGridDataItem(gridPosition))
     return alterResult
 }
 
