@@ -54,8 +54,12 @@ const genNewDataForGrid = () =>
     const data = {
         left:   genDataForGrid('left'),
         center: genDataForGrid('center'),
-        right:  genDataForGrid('right') 
-    } // array.from    
+        right:  genDataForGrid('right'),
+        chbleft : '', 
+        chbcenter : '', 
+        chbright : ''
+    } // array.from
+    //debugger    
     return data
 }
 

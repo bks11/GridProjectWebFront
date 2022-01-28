@@ -2,7 +2,10 @@
 let data = {
     left:   [],
     center: [],
-    right:  []
+    right:  [],
+    chbleft : '', 
+    chbcenter : '', 
+    chbright : ''
 }
 //Uncaught TypeError: Cannot set properties of undefined (setting 'BootstrapTable'
 //dataCenter  = [{id, valname, amount, today, flag}],
@@ -21,6 +24,7 @@ let data = {
 //Date time util - https://momentjs.com/ https://cdnjs.com/libraries/moment.js
 //Richard Feynman - https://habr.com/ru/company/getmeit/blog/646085/
 //Excel file - https://stackoverflow.com/questions/43728201/how-to-read-xlsx-and-xls-files-using-c-sharp-and-oledbconnection
+//QuerySelector multiple data attributes -  document.querySelector('[data-point-id="7febe088-4eca-493b-8455-385b39ad30e3"][data-period="current"]')
 
 const
     leftdiv         = document.querySelector('#left-div'),
@@ -77,6 +81,112 @@ const setActionForAllRows = () => {
     document.querySelectorAll('table').forEach(t => setRowsAction(t.rows))
 }
 //Checkbox section
+const saveChbStatus = (id, position, status) => {
+    //debugger
+    data[position].forEach(o => {
+        if(o.id === id) {
+            //debugger
+            o.chbstatus = status
+        }
+    })
+    let p = `chb${position}`
+    const chb = document.querySelectorAll(`.chbheader-${position}`).forEach(chb => {
+        if(chb.indeterminate === true) {
+            data[p] = 3
+        } else 
+        {
+            chb.checked ? data[p] = 1 : data[p] = 0
+        }
+        console.log(data[p])
+    })
+}
+
+const setMainChbStatus = (mainChb, totalItems, selectedItems) =>
+{
+    if (selectedItems === totalItems) {
+        mainChb.forEach(c => {
+            c.indeterminate = false
+            c.checked = true
+        })
+    } else { 
+        if (selectedItems === 0) {
+            mainChb.forEach(c => {
+                c.indeterminate = false
+                c.checked = false
+            }) 
+        } else {
+            mainChb.forEach(c => {
+                c.indeterminate = true
+                c.checked = false
+            })
+        }
+    }
+}
+
+const renderMainChbStatus = () => {
+    const 
+        l = data.chbleft,
+        c = data.chbcenter,
+        r = data.chbright
+        console.log(`${l},${c},${r}`)
+        if (l === 3) {
+            document.querySelectorAll('.chbheader-left').forEach(chb => {
+                chb.indeterminate = true
+                chb.checked = false
+            } )
+        }
+        if (c === 3) {
+            document.querySelectorAll('.chbheader-center').forEach(chb => {
+                chb.indeterminate = true
+                chb.checked = false
+            } )
+        }
+        if (r === 3) {
+            document.querySelectorAll('.chbheader-right').forEach(chb => {
+                chb.indeterminate = true
+                chb.checked = false
+            } )
+        }
+
+        if (l === 1) {
+            document.querySelectorAll('.chbheader-left').forEach(chb => {
+                chb.indeterminate = false
+                chb.checked = true
+            })
+        }
+        if (c === 1) {
+            document.querySelectorAll('.chbheader-center').forEach(chb => {
+                chb.indeterminate = false
+                chb.checked = true
+            })
+        }
+        if (r === 1) {
+            document.querySelectorAll('.chbheader-right').forEach(chb => {
+                chb.indeterminate = false
+                chb.checked = true
+            })
+        }
+
+        if (l === 0) {
+            document.querySelectorAll('.chbheader-left').forEach(chb => {
+                chb.indeterminate = false
+                chb.checked = false
+            })
+        }
+        if (c === 0) {
+            document.querySelectorAll('.chbheader-center').forEach(chb => {
+                chb.indeterminate = false
+                chb.checked = false
+            })
+        }
+        if (r === 0) {
+            document.querySelectorAll('.chbheader-right').forEach(chb => {
+                chb.indeterminate = false
+                chb.checked = false
+            })
+        }
+    
+}
 const checkboxAction = (e) => 
 {
     const chbRole = e.target.getAttribute('data-parent')
@@ -85,7 +195,9 @@ const checkboxAction = (e) =>
     if (chbRole === 'main') {
         const chbContainerPosition = e.target.getAttribute('data-position')
         document.querySelectorAll(`.chb${chbContainerPosition}`).forEach(c => {
+            let idGUID = c.getAttribute('id').substring(4)
             c.checked = isChecked
+            saveChbStatus(idGUID, chbContainerPosition, isChecked)
             document.querySelectorAll(`.chbheader-${chbContainerPosition}`).forEach(m => {
                 m.checked = isChecked
             })
@@ -96,6 +208,7 @@ const checkboxAction = (e) =>
             className               = e.target.getAttribute('class'),
             chbContainerPosition    = e.target.getAttribute('data-position'),
             id                      = e.target.getAttribute('id'),
+            recGUID                 = id.substring(4),
             totalItems              = document.querySelectorAll(`.${className}`).length,
             child                   = document.querySelectorAll(`.${className}`),
             chbMain                 = document.querySelectorAll(`.chbheader-${chbContainerPosition}`)
@@ -108,25 +221,8 @@ const checkboxAction = (e) =>
             selectedChild += child[i].checked
         }
 
-        if (selectedChild === totalItems) {
-            chbMain.forEach(c => {
-                c.indeterminate = false
-                c.checked = true
-            })
-        } else { 
-            if (selectedChild ===0) {
-                chbMain.forEach(c => {
-                    c.indeterminate = false
-                    c.checked = false
-                }) 
-            } else {
-                chbMain.forEach(c => {
-                    c.indeterminate = true
-                    c.checked = false
-                })
-            }
-        }
-
+        setMainChbStatus(chbMain, totalItems, selectedChild)
+        saveChbStatus(recGUID, chbContainerPosition, isChecked)
         console.log(`selected child ${selectedChild}`)
         console.log(className)
         console.log(id)
@@ -180,7 +276,8 @@ const renderTable = container => {
                                                 class="chb${position}" 
                                                 id="chb-${x.id}"
                                                 data-parent="chbheader-${position}"
-                                                data-position="${position}"/>
+                                                data-position="${position}"
+                                                ${x.chbstatus ? 'checked':''}/>
                                         </td>
                                         <td>${x.id}</td>
                                         <td>${x.valname}</td>
@@ -194,7 +291,7 @@ const renderTable = container => {
                                         </td>
                                     </tr>`),
         template = document.createElement('template')
-    template.innerHTML = `<table class="table table-bordered tabel-sm cellpadding="0">
+    template.innerHTML = `<table class="table table-bordered tabel-sm cellpadОding="0">
                                     <thead>
                                         <tr>
                                             <th>
@@ -217,6 +314,7 @@ const renderTable = container => {
                                     </tbody>
                                 </table>`
     container.append(template.content.cloneNode(true))
+    renderMainChbStatus()
 }
 
 const renderTables = () => {
