@@ -25,6 +25,9 @@ let data = {
 //Richard Feynman - https://habr.com/ru/company/getmeit/blog/646085/
 //Excel file - https://stackoverflow.com/questions/43728201/how-to-read-xlsx-and-xls-files-using-c-sharp-and-oledbconnection
 //QuerySelector multiple data attributes -  document.querySelector('[data-point-id="7febe088-4eca-493b-8455-385b39ad30e3"][data-period="current"]')
+//Checkboxes - https://css-tricks.com/indeterminate-checkboxes/
+//Router vanila javascript - https://jstutorial.medium.com/making-your-own-vanilla-js-router-2e621ffdee88
+//SPA Routing System in Vanilla JS - https://medium.com/@bryanmanuele/how-i-implemented-my-own-spa-routing-system-in-vanilla-js-49942e3c4573
 
 const
     leftdiv         = document.querySelector('#left-div'),
