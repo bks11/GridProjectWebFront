@@ -6,16 +6,6 @@ const
     btnToRight = '<button type="button" class="btn btn-sm btn-outline-dark">></button>',
     btnToLeft = '<button type="button" class="btn btn-sm btn-outline-dark"><</button>'
 
-/*
-    todo 
-    1. Fill allData
-    2. Move renderTable logic  from index.js
-    3. Remove all comments and unused code
-
-    DOM - index.js
-    table generation  - proxycontainer.js
-*/ 
-
 const generateBtnCode = position => 
 {
     if(position === 'left') {
@@ -27,18 +17,10 @@ const generateBtnCode = position =>
     }
 }
 
-//Create proxy object
 let withProxy = targetContainer => new Proxy(targetContainer, containerProxyHandler)
-//targetContainer - is an object to wrap
-//containerHandler - is an object that contains methods to control the behaviors of the "target". 
-//                      The methods inside  the "handler" object are called traps
 
-
-//Define handler object
 const containerProxyHandler = 
 {
-    //Proxy trap
-    //The get() trap is fired when a property of the "target" object is accessed via the proxy object
     get(target, method, reciver)
     {
         if(typeof target[method] == 'function')
@@ -46,24 +28,15 @@ const containerProxyHandler =
             {
 		        if(method === 'setAttribute') 
                 {
-                    console.log(args)
-                    const position = args[1]//target.dataset.position
-                    const table = smartManager[position].getTable(allData[position]) //HTML Table 
+                    const position = args[1]
+                    const table = smartManager[position].getTable(allData[position]) 
                     target.innerHTML = ''
                     target.append(table)
                 } 
                 return Reflect.apply(target[method], target, args)
             }
-        if(method === 'renderTable')
-            return function (...args)
-            {
-                const position = target.dataset.position
-                const table = smartManager[position].getTable(allData[position]) //HTML Table 
-                target.innerHTML = ''
-                target.append(table)
-            }
 		return Reflect.get(...arguments)
-    },
+    }
 }
 
 class ContainerManager {
@@ -75,8 +48,6 @@ class ContainerManager {
     
     getTable(data) 
     {
-        //Set checkbox state
-        //Render table
         const dataMap = data.map(
             x => `<tr>
                         <td>
@@ -115,7 +86,6 @@ class ContainerManager {
                 </table>`
         const outputTemplate = template.content.cloneNode(true)
 
-        //ToDo move from index.js  HTML
         outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
             const id = el.dataset.id
             el.checked = this.checkedIds.includes(id)
@@ -126,7 +96,6 @@ class ContainerManager {
                 } else {
                     this.checkedIds.push(id)
                 }
-                //ToDo:  Need Impement  global refresh
             })
 
         })
