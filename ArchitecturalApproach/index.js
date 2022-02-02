@@ -9,7 +9,6 @@ const
     tabContainer    = document.querySelector('#pillscontainer')
     
     const renderTables = () => {
-        //[leftdiv, centerdiv, rightdiv, gridcontainer].forEach(t => t.renderTable(t))
         leftdiv.setAttribute('data-position', 'left')
         centerdiv.setAttribute('data-position', 'center')
         rightdiv.setAttribute('data-position', 'right')
