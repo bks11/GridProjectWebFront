@@ -1,12 +1,28 @@
+import { withProxy } from './proxycontainer.js'
+import { genDataForGrid, genNewDataForGrid } from './dataproc.js'
 
-let data = {
-    left:   [],
-    center: [],
-    right:  [],
-    chbleft : '', 
-    chbcenter : '', 
-    chbright : ''
-}
+// let data = {
+//     left:   [],
+//     center: [],
+//     right:  [],
+//     chbleft : '', 
+//     chbcenter : '', 
+//     chbright : ''
+// }
+
+const
+    leftdiv         = withProxy(document.querySelector('#left-div')),
+    centerdiv       = withProxy(document.querySelector('#center-div')),
+    rightdiv        = withProxy(document.querySelector('#right-div')),
+
+    gridcontainer   = withProxy(document.querySelector('#gridcontainer')),
+    tabLeft         = document.querySelector('#tab-left'),
+    tabCenter       = document.querySelector('#tab-center'),
+    tabRight        = document.querySelector('#tab-right')
+
+
+
+
 //Uncaught TypeError: Cannot set properties of undefined (setting 'BootstrapTable'
 //dataCenter  = [{id, valname, amount, today, flag}],
 //dataRight   = [{id, valname, amount, today, flag}]
@@ -29,15 +45,6 @@ let data = {
 //Router vanila javascript - https://jstutorial.medium.com/making-your-own-vanilla-js-router-2e621ffdee88
 //SPA Routing System in Vanilla JS - https://medium.com/@bryanmanuele/how-i-implemented-my-own-spa-routing-system-in-vanilla-js-49942e3c4573
 
-const
-    leftdiv         = document.querySelector('#left-div'),
-    centerdiv       = document.querySelector('#center-div'),
-    rightdiv        = document.querySelector('#right-div'),
-
-    gridcontainer   = document.querySelector('#gridcontainer'),
-    tabLeft         = document.querySelector('#tab-left'),
-    tabCenter       = document.querySelector('#tab-center'),
-    tabRight        = document.querySelector('#tab-right')
 
 // const router = async () =>{
 //     const routes = [
@@ -86,21 +93,23 @@ const setActionForAllRows = () => {
 //Checkbox section
 const saveChbStatus = (id, position, status) => {
     //debugger
+    const dataChbProperty = `chb${position}`
+
     data[position].forEach(o => {
         if(o.id === id) {
             //debugger
             o.chbstatus = status
         }
     })
-    let p = `chb${position}`
-    const chb = document.querySelectorAll(`.chbheader-${position}`).forEach(chb => {
+    
+    document.querySelectorAll(`.chbheader-${position}`).forEach(chb => {
         if(chb.indeterminate === true) {
-            data[p] = 3
+            data[dataChbProperty] = undefined
         } else 
         {
-            chb.checked ? data[p] = 1 : data[p] = 0
+            chb.checked ? data[dataChbProperty] = true : data[dataChbProperty] = false
         }
-        console.log(data[p])
+        console.log(data[dataChbProperty])
     })
 }
 
@@ -126,69 +135,18 @@ const setMainChbStatus = (mainChb, totalItems, selectedItems) =>
     }
 }
 
-const renderMainChbStatus = () => {
+const renderMainChbStatus = container => {
     const 
-        l = data.chbleft,
-        c = data.chbcenter,
-        r = data.chbright
-        console.log(`${l},${c},${r}`)
-        if (l === 3) {
-            document.querySelectorAll('.chbheader-left').forEach(chb => {
-                chb.indeterminate = true
-                chb.checked = false
-            } )
-        }
-        if (c === 3) {
-            document.querySelectorAll('.chbheader-center').forEach(chb => {
-                chb.indeterminate = true
-                chb.checked = false
-            } )
-        }
-        if (r === 3) {
-            document.querySelectorAll('.chbheader-right').forEach(chb => {
-                chb.indeterminate = true
-                chb.checked = false
-            } )
-        }
+        // l = data.chbleft,
+        // c = data.chbcenter,
+        // r = data.chbright
+        //
+        position = container.dataset.position //https://stackoverflow.com/questions/33760520/how-can-i-get-the-values-of-data-attributes-in-javascript-code
+        const chb = container.querySelector('table thead input[type="checkbox"]')
+        const chbData = data[`chb${position}`]
 
-        if (l === 1) {
-            document.querySelectorAll('.chbheader-left').forEach(chb => {
-                chb.indeterminate = false
-                chb.checked = true
-            })
-        }
-        if (c === 1) {
-            document.querySelectorAll('.chbheader-center').forEach(chb => {
-                chb.indeterminate = false
-                chb.checked = true
-            })
-        }
-        if (r === 1) {
-            document.querySelectorAll('.chbheader-right').forEach(chb => {
-                chb.indeterminate = false
-                chb.checked = true
-            })
-        }
-
-        if (l === 0) {
-            document.querySelectorAll('.chbheader-left').forEach(chb => {
-                chb.indeterminate = false
-                chb.checked = false
-            })
-        }
-        if (c === 0) {
-            document.querySelectorAll('.chbheader-center').forEach(chb => {
-                chb.indeterminate = false
-                chb.checked = false
-            })
-        }
-        if (r === 0) {
-            document.querySelectorAll('.chbheader-right').forEach(chb => {
-                chb.indeterminate = false
-                chb.checked = false
-            })
-        }
-    
+        chb.indeterminate = chbData === undefined
+        chb.checked = !!chbData  //convert to bool  
 }
 const checkboxAction = (e) => 
 {
@@ -257,11 +215,16 @@ const processCheckboxes = () =>
 const nodeArray = (selector, parent=document) => [].slice.call(parent.querySelectorAll(selector));
 const refreshTable = container => 
 {
-    container.innerHTML = ''
     renderTable(container)
     processCheckboxes()
 }
+//const renderTable = container => container.renderTable()
+
 const renderTable = container => {
+    debugger
+    container.renderTable()
+    debugger
+    container.innerHTML = ''
     const position = container.getAttribute("data-position")
     let btnCode
     if (position == "left") {
@@ -280,6 +243,7 @@ const renderTable = container => {
                                                 id="chb-${x.id}"
                                                 data-parent="chbheader-${position}"
                                                 data-position="${position}"
+                                                data-id="${x.id}"
                                                 ${x.chbstatus ? 'checked':''}/>
                                         </td>
                                         <td>${x.id}</td>
@@ -294,16 +258,11 @@ const renderTable = container => {
                                         </td>
                                     </tr>`),
         template = document.createElement('template')
+    
     template.innerHTML = `<table class="table table-bordered tabel-sm cellpadОding="0">
                                     <thead>
                                         <tr>
-                                            <th>
-                                                <input 
-                                                    type="checkbox" 
-                                                    class="chbheader-${position}" 
-                                                    data-parent="main"
-                                                    data-position="${position}"/>
-                                            </th>
+                                            <th><input type="checkbox"/></th>
                                             <th>id</th>
                                             <th>name</th>
                                             <th>amount</t>
@@ -316,8 +275,10 @@ const renderTable = container => {
                                         ${dataMap.join('')}
                                     </tbody>
                                 </table>`
+    const outputTemplate = template.content.cloneNode(true)
+    
     container.append(template.content.cloneNode(true))
-    renderMainChbStatus()
+    renderMainChbStatus(container)
 }
 
 const renderTables = () => {
@@ -346,7 +307,7 @@ const push = event => {
     window.history.pushState({ id }, ``, `/${position}`);
 }
 
-import { genDataForGrid, genNewDataForGrid } from './dataproc.js'
+
 
 window.oninvalid = () => {
     //console.log('oninvalid')
@@ -356,6 +317,7 @@ window.onerror = event => {
     debugger
     console.log(`Error event - ${event}`)
 }
+
 window.onload = event => {
     //console.log(event)
     //Generate initial data for all grids
