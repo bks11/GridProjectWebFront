@@ -9,8 +9,11 @@ const
     tabContainer    = document.querySelector('#pillscontainer')
     
     const renderTables = () => {
-        [leftdiv, centerdiv, rightdiv, gridcontainer].forEach(t => {
-            t.renderTable(t)})
+        //[leftdiv, centerdiv, rightdiv, gridcontainer].forEach(t => t.renderTable(t))
+        leftdiv.setAttribute('data-position', 'left')
+        centerdiv.setAttribute('data-position', 'center')
+        rightdiv.setAttribute('data-position', 'right')
+        gridcontainer.setAttribute('data-position', 'left')
     }
 
     const selectTab = id => {
@@ -26,9 +29,10 @@ const
     const push = event => {
         const id = event.target.id
         const position = event.target.getAttribute('data-link')
-        gridcontainer.position = position
+        
+        gridcontainer.setAttribute('data-position', position) //property
         selectTab(id)
-        renderTables()
+        
         window.history.pushState({ id }, ``, `/${position}`);
     }
     
