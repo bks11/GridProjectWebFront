@@ -1,10 +1,10 @@
-import { genDataForGrid, genNewDataForGrid } from './dataproc.js'
+import { genNewDataForGrid } from './dataproc.js'
 
-let allData = {
-    left:   [],
-    center: [],
-    right:  [] 
-}
+let allData = genNewDataForGrid()
+
+const 
+    btnToRight = '<button type="button" class="btn btn-sm btn-outline-dark">></button>',
+    btnToLeft = '<button type="button" class="btn btn-sm btn-outline-dark"><</button>'
 
 /*
     todo 
@@ -15,7 +15,17 @@ let allData = {
     DOM - index.js
     table generation  - proxycontainer.js
 */ 
-allData = genNewDataForGrid()
+
+const generateBtnCode = position => 
+{
+    if(position === 'left') {
+        return `<div class="btn-group btn-group-sm">${btnToRight}</div>`
+    } else if(position === 'center') {
+        return `<div class="btn-group btn-group-sm">${btnToLeft}${btnToRight}</div>`
+    } else if(position === 'right') {
+        return `<div class="btn-group btn-group-sm">${btnToLeft}</div>`
+    }
+}
 
 //Create proxy object
 let withProxy = targetContainer => new Proxy(targetContainer, containerProxyHandler)
@@ -29,56 +39,50 @@ const containerProxyHandler =
 {
     //Proxy trap
     //The get() trap is fired when a property of the "target" object is accessed via the proxy object
-    get(target, method)
+    get(target, method, reciver)
     {
-        //debugger
+        if(typeof target[method] == 'function')
+	        return function (...args) 
+            {
+		        if(method === 'setAttribute') 
+                {
+                    console.log(args)
+                    const position = args[1]//target.dataset.position
+                    const table = smartManager[position].getTable(allData[position]) //HTML Table 
+                    target.innerHTML = ''
+                    target.append(table)
+                } 
+                return Reflect.apply(target[method], target, args)
+            }
         if(method === 'renderTable')
             return function (...args)
             {
-                //debugger  
                 const position = target.dataset.position
                 const table = smartManager[position].getTable(allData[position]) //HTML Table 
                 target.innerHTML = ''
                 target.append(table)
             }
-        //return Reflect.get(...arguments)
-        return Reflect.get(target)
+		return Reflect.get(...arguments)
     },
-    set(target, property, value)
-    {
-        //debugger
-        if (property === 'position')  {
-            target.setAttribute('data-position', value)
-            target[property] = value
-            console.log(value)
-            return true
-          } else 
-          {
-            return Reflect.set(...arguments);
-          }
-    }
 }
 
 class ContainerManager {
     constructor (position) {
         this.position = position
         this.checkedIds = []
+        this.btnCode = generateBtnCode(position)
     }
-    //Save checkboxes status
+    
     getTable(data) 
     {
         //Set checkbox state
         //Render table
-        //debugger
         const dataMap = data.map(
             x => `<tr>
                         <td>
                             <input 
                                 type="checkbox" 
                                 class="chb${this.position}" 
-                                id="chb-${x.id}"
-                                data-parent="chbheader-${this.position}"
-                                data-position="${this.position}"
                                 data-id="${x.id}"
                                 ${x.chbstatus ? 'checked':''}/>
                         </td>
@@ -88,9 +92,7 @@ class ContainerManager {
                         <td>${x.date}</td>
                         <td align="center">${x.flag ? '<i class="fas fa-flag"></i>' : '<i class="far fa-flag"></i>'}</td>
                         <td>
-                            <div class='btn-group btn-group-sm'> 
-                            <button type='button' class='btn btn-sm btn-outline-dark'><</button> <button type='button' class='btn btn-sm btn-outline-dark'>></button>
-                            </div>
+                            ${this.btnCode}
                         </td>
                     </tr>`),
             template = document.createElement('template')
@@ -119,7 +121,6 @@ class ContainerManager {
             el.checked = this.checkedIds.includes(id)
             el.addEventListener('change', () => 
             {
-                debugger
                 if (this.checkedIds.includes(id)) {
                     this.checkedIds.splice(this.checkedIds.indexOf(id), 1)
                 } else {
