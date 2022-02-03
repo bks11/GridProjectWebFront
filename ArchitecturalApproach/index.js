@@ -6,7 +6,9 @@ const
     rightdiv        = withProxy(document.querySelector('#right-div')),
 
     gridcontainer   = withProxy(document.querySelector('#gridcontainer')),
-    tabContainer    = document.querySelector('#pillscontainer')
+    tabContainer    = withProxy(document.querySelector('#pillscontainer'))
+
+    
     
     const renderTables = () => {
         leftdiv.setAttribute('data-position', 'left')

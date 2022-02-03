@@ -2,6 +2,10 @@ import { genNewDataForGrid } from './dataproc.js'
 
 let allData = genNewDataForGrid()
 
+const checkFirstIds = position => {
+    return allData[position][0].id
+}
+
 const 
     btnToRight = '<button type="button" class="btn btn-sm btn-outline-dark">></button>',
     btnToLeft = '<button type="button" class="btn btn-sm btn-outline-dark"><</button>'
@@ -17,36 +21,14 @@ const generateBtnCode = position =>
     }
 }
 
-let withProxy = targetContainer => new Proxy(targetContainer, containerProxyHandler)
-
-const containerProxyHandler = 
-{
-    get(target, method, reciver)
-    {
-        if(typeof target[method] == 'function')
-	        return function (...args) 
-            {
-		        if(method === 'setAttribute') 
-                {
-                    const position = args[1]
-                    const table = smartManager[position].getTable(allData[position]) 
-                    target.innerHTML = ''
-                    target.append(table)
-                } 
-                return Reflect.apply(target[method], target, args)
-            }
-		return Reflect.get(...arguments)
-    }
-}
-
 class ContainerManager {
     constructor (position) {
         this.position = position
-        this.checkedIds = []
+        this.checkedIds = [checkFirstIds(position)]
         this.btnCode = generateBtnCode(position)
     }
     
-    getTable(data) 
+    drawTable(data) 
     {
         const dataMap = data.map(
             x => `<tr>
@@ -55,7 +37,7 @@ class ContainerManager {
                                 type="checkbox" 
                                 class="chb${this.position}" 
                                 data-id="${x.id}"
-                                ${x.chbstatus ? 'checked':''}/>
+                                ${this.checkedIds.includes(x.id) ? 'checked':''}/>
                         </td>
                         <td>${x.id}</td>
                         <td>${x.valname}</td>
@@ -88,7 +70,6 @@ class ContainerManager {
 
         outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
             const id = el.dataset.id
-            el.checked = this.checkedIds.includes(id)
             el.addEventListener('change', () => 
             {
                 if (this.checkedIds.includes(id)) {
@@ -107,6 +88,34 @@ const smartManager = {
     left: new ContainerManager('left'),
     center: new ContainerManager('center'),
     right: new ContainerManager('right')
+}
+
+let withProxy = targetContainer => new Proxy(targetContainer, containerProxyHandler)
+
+const containerProxyHandler = 
+{
+    get(target, method, reciver)
+    {
+        console.log(method)
+        if(typeof target[method] == 'function')
+	        return function (...args) 
+            {
+		        if(method === 'setAttribute') 
+                {
+                    const position = args[1]
+                    const table = smartManager[position].drawTable(allData[position]) 
+                    target.innerHTML = ''
+                    target.append(table)
+                } 
+                return Reflect.apply(target[method], target, args)
+            }
+        if(method === 'push')
+        {
+            debugger
+            console.log('PUSH')
+        }
+		return Reflect.get(...arguments)
+    }
 }
 
 export { withProxy }
