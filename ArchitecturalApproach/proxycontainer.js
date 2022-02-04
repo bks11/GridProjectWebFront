@@ -25,6 +25,7 @@ class ContainerManager {
     constructor (position) {
         this.position = position
         this.checkedIds = [checkFirstIds(position)]
+        this.proxyElements = []
         this.btnCode = generateBtnCode(position)
     }
     
@@ -70,15 +71,16 @@ class ContainerManager {
 
         outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
             const id = el.dataset.id
-            el.addEventListener('change', () => 
+            this.proxyElements.push(withProxy(el))
+            withProxy(el).addEventListener('change', () => 
             {
                 if (this.checkedIds.includes(id)) {
                     this.checkedIds.splice(this.checkedIds.indexOf(id), 1)
                 } else {
                     this.checkedIds.push(id)
                 }
+                console.log(this.position)
             })
-
         })
         return outputTemplate
     }
@@ -90,13 +92,12 @@ const smartManager = {
     right: new ContainerManager('right')
 }
 
-let withProxy = targetContainer => new Proxy(targetContainer, containerProxyHandler)
+let withProxy = (targetContainer, tabs) => new Proxy(targetContainer, containerProxyHandler(tabs))
 
-const containerProxyHandler = 
-{
+const containerProxyHandler = tabs => 
+({
     get(target, method, reciver)
-    {
-        console.log(method)
+    {        
         if(typeof target[method] == 'function')
 	        return function (...args) 
             {
@@ -106,16 +107,19 @@ const containerProxyHandler =
                     const table = smartManager[position].drawTable(allData[position]) 
                     target.innerHTML = ''
                     target.append(table)
+                    if(tabs)
+                    {
+                        for(let tab in tabs)
+                        {
+                            tabs[tab].classList.remove('active')
+                        }
+                        tabs[position].classList.add('active')
+                    }
                 } 
                 return Reflect.apply(target[method], target, args)
             }
-        if(method === 'push')
-        {
-            debugger
-            console.log('PUSH')
-        }
 		return Reflect.get(...arguments)
     }
-}
+})
 
 export { withProxy }

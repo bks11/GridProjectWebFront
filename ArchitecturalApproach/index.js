@@ -1,44 +1,40 @@
 import { withProxy } from './proxycontainer.js'
 
+const tabs = {
+    left : document.querySelector('a[data-link="left"]'), 
+    center : document.querySelector('a[data-link="center"]'),
+    right : document.querySelector('a[data-link="right"]') 
+}
+
 const
     leftdiv         = withProxy(document.querySelector('#left-div')),
     centerdiv       = withProxy(document.querySelector('#center-div')),
     rightdiv        = withProxy(document.querySelector('#right-div')),
 
-    gridcontainer   = withProxy(document.querySelector('#gridcontainer')),
-    tabContainer    = withProxy(document.querySelector('#pillscontainer'))
-
-    
+    gridcontainer   = withProxy(document.querySelector('#gridcontainer'), tabs)
     
     const renderTables = () => {
         leftdiv.setAttribute('data-position', 'left')
         centerdiv.setAttribute('data-position', 'center')
         rightdiv.setAttribute('data-position', 'right')
-        gridcontainer.setAttribute('data-position', 'left')
+        gridcontainer.setAttribute('data-position', 'left') 
     }
 
-    const selectTab = id => {
-        document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'))
-        document.querySelectorAll(`#${id}`).forEach(item => item.classList.add('active'))
-    }
-
-    const addEvents = (container, event) => {
-        container.querySelectorAll('.nav-link').forEach(n => {
-            n.addEventListener('click', event => { push(event) })
-        })
+    const addEvents = (event) => {
+        for (let tab in tabs ) 
+        {
+            tabs[tab].addEventListener('click', event => push(event))
+        }
     }
     const push = event => {
         const id = event.target.id
         const position = event.target.getAttribute('data-link')
-        
-        gridcontainer.setAttribute('data-position', position) //property
-        selectTab(id)
-        
+        gridcontainer.setAttribute('data-position', position)
         window.history.pushState({ id }, ``, `/${position}`);
     }
     
     window.onload = event => {
-        addEvents(tabContainer, event)
+        addEvents(event)
         renderTables()
     }
     
