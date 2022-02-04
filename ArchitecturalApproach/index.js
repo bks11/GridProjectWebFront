@@ -20,10 +20,11 @@ const
         gridcontainer.setAttribute('data-position', 'left') 
     }
 
-    const addEvents = (event) => {
+    const addEvents = () => {
         for (let tab in tabs ) 
         {
-            tabs[tab].addEventListener('click', event => push(event))
+            //tabs[tab].addEventListener('click', event => push(event))
+            tabs[tab].addEventListener('click', push)
         }
     }
     const push = event => {
