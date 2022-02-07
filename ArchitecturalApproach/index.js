@@ -23,7 +23,6 @@ const
     const addEvents = () => {
         for (let tab in tabs ) 
         {
-            //tabs[tab].addEventListener('click', event => push(event))
             tabs[tab].addEventListener('click', push)
         }
     }

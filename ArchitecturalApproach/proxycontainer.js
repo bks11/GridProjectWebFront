@@ -6,27 +6,25 @@ const checkFirstIds = position => {
     return allData[position][0].id
 }
 
-const 
-    btnToRight = '<button type="button" class="btn btn-sm btn-outline-dark">></button>',
-    btnToLeft = '<button type="button" class="btn btn-sm btn-outline-dark"><</button>'
-
-const generateBtnCode = position => 
-{
-    if(position === 'left') {
-        return `<div class="btn-group btn-group-sm">${btnToRight}</div>`
-    } else if(position === 'center') {
-        return `<div class="btn-group btn-group-sm">${btnToLeft}${btnToRight}</div>`
-    } else if(position === 'right') {
-        return `<div class="btn-group btn-group-sm">${btnToLeft}</div>`
-    }
-}
-
 class ContainerManager {
+
     constructor (position) {
+        this.btnToRight = '<button type="button" class="btn btn-sm btn-outline-dark">></button>'
+        this.btnToLeft = '<button type="button" class="btn btn-sm btn-outline-dark"><</button>'
         this.position = position
         this.checkedIds = [checkFirstIds(position)]
         this.proxyElements = []
-        this.btnCode = generateBtnCode(position)
+    }
+     
+    generateBtnCode = position => 
+    {
+        if(position === 'left') {
+            return this.btnToRight
+        } else if(position === 'center') {
+            return this.btnToLeft + this.btnToRight
+        } else if(position === 'right') {
+            return this.btnToLeft
+        }
     }
     
     drawTable(data) 
@@ -36,7 +34,7 @@ class ContainerManager {
                         <td>
                             <input 
                                 type="checkbox" 
-                                class="chb${this.position}" 
+                                
                                 data-id="${x.id}"
                                 ${this.checkedIds.includes(x.id) ? 'checked':''}/>
                         </td>
@@ -46,11 +44,11 @@ class ContainerManager {
                         <td>${x.date}</td>
                         <td align="center">${x.flag ? '<i class="fas fa-flag"></i>' : '<i class="far fa-flag"></i>'}</td>
                         <td>
-                            ${this.btnCode}
+                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode(this.position)}</div>
                         </td>
                     </tr>`),
-            template = document.createElement('template')
 
+            template = document.createElement('template')
             template.innerHTML = `<table class="table table-bordered tabel-sm cellpadОding="0">
                     <thead>
                         <tr>
@@ -68,7 +66,6 @@ class ContainerManager {
                     </tbody>
                 </table>`
         const outputTemplate = template.content.cloneNode(true)
-
         outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
             const id = el.dataset.id
             this.proxyElements.push(withProxy(el))
@@ -79,7 +76,6 @@ class ContainerManager {
                 } else {
                     this.checkedIds.push(id)
                 }
-                console.log(this.position)
             })
         })
         return outputTemplate
