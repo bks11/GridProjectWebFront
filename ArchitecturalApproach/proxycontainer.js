@@ -1,4 +1,5 @@
 import { genNewDataForGrid } from './dataproc.js'
+import { checkboxProxy } from './proxyCheckboxes.js'
 
 let allData = genNewDataForGrid()
 
@@ -74,7 +75,7 @@ class ContainerManager {
                 if (this.checkedIds.includes(id)) {
                     this.checkedIds.splice(this.checkedIds.indexOf(id), 1)
                 } else {
-                    this.checkedIds.push(id)
+                    checkboxProxy(this.checkedIds).push(id)
                 }
             })
         })
@@ -87,6 +88,8 @@ const smartManager = {
     center: new ContainerManager('center'),
     right: new ContainerManager('right')
 }
+
+
 
 let withProxy = (targetContainer, tabs) => new Proxy(targetContainer, containerProxyHandler(tabs))
 
