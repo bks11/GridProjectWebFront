@@ -1,30 +1,46 @@
 import { genNewDataForGrid } from './dataproc.js'
-import { checkboxProxy } from './proxyCheckboxes.js'
 
 let allData = genNewDataForGrid()
 
-const checkFirstIds = position => {
-    return allData[position][0].id
-}
-
 class ContainerManager {
-
+    
     constructor (position) {
-        this.btnToRight = '<button type="button" class="btn btn-sm btn-outline-dark">></button>'
-        this.btnToLeft = '<button type="button" class="btn btn-sm btn-outline-dark"><</button>'
         this.position = position
-        this.checkedIds = [checkFirstIds(position)]
-        this.proxyElements = []
+        const checkboxHandler = {
+            get(target, method)
+            {
+                if(method === 'toggle')
+                {
+                    return function (id) 
+                    {
+                        const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
+                        if(target.includes(id))
+                        {
+                            target.splice(target.indexOf(id), 1)
+                            checkboxes.forEach(c => c.checked = false)
+                        } else 
+                        {
+                            target.push(id)
+                            checkboxes.forEach(c => c.checked = true)
+                        }
+                    }
+                }
+                return Reflect.get(...arguments)    
+            }
+        }
+        this.checkedIds = new Proxy([], checkboxHandler)
     }
-     
-    generateBtnCode = position => 
+
+    generateBtnCode() 
     {
-        if(position === 'left') {
-            return this.btnToRight
-        } else if(position === 'center') {
-            return this.btnToLeft + this.btnToRight
-        } else if(position === 'right') {
-            return this.btnToLeft
+        const btnToRight = '<button class="btn btn-sm btn-outline-dark">></button>'
+        const btnToLeft = '<button class="btn btn-sm btn-outline-dark"><</button>'
+        if(this.position === 'left') {
+            return btnToRight
+        } else if(this.position === 'center') {
+            return btnToLeft + btnToRight
+        } else if(this.position === 'right') {
+            return btnToLeft
         }
     }
     
@@ -35,7 +51,6 @@ class ContainerManager {
                         <td>
                             <input 
                                 type="checkbox" 
-                                
                                 data-id="${x.id}"
                                 ${this.checkedIds.includes(x.id) ? 'checked':''}/>
                         </td>
@@ -45,7 +60,7 @@ class ContainerManager {
                         <td>${x.date}</td>
                         <td align="center">${x.flag ? '<i class="fas fa-flag"></i>' : '<i class="far fa-flag"></i>'}</td>
                         <td>
-                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode(this.position)}</div>
+                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode()}</div>
                         </td>
                     </tr>`),
 
@@ -69,14 +84,9 @@ class ContainerManager {
         const outputTemplate = template.content.cloneNode(true)
         outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
             const id = el.dataset.id
-            this.proxyElements.push(withProxy(el))
-            withProxy(el).addEventListener('change', () => 
+            el.addEventListener('change', () => 
             {
-                if (this.checkedIds.includes(id)) {
-                    this.checkedIds.splice(this.checkedIds.indexOf(id), 1)
-                } else {
-                    checkboxProxy(this.checkedIds).push(id)
-                }
+                this.checkedIds.toggle(id)
             })
         })
         return outputTemplate
@@ -88,8 +98,6 @@ const smartManager = {
     center: new ContainerManager('center'),
     right: new ContainerManager('right')
 }
-
-
 
 let withProxy = (targetContainer, tabs) => new Proxy(targetContainer, containerProxyHandler(tabs))
 
