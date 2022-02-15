@@ -13,15 +13,58 @@ class ContainerManager {
                 {
                     return function (id) 
                     {
+                        const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
                         const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
-                        if(target.includes(id))
+                        if(id)
                         {
-                            target.splice(target.indexOf(id), 1)
-                            checkboxes.forEach(c => c.checked = false)
-                        } else 
+                            if(target.includes(id))
+                            {
+                                target.splice(target.indexOf(id), 1)
+                                checkboxes.forEach(c => c.checked = false)
+                                
+                            } else 
+                            {
+                                target.push(id)
+                                checkboxes.forEach(c => c.checked = true)
+                            } 
+                        } 
+                        else // Header chb action 
                         {
-                            target.push(id)
-                            checkboxes.forEach(c => c.checked = true)
+                            debugger
+                            if(target.length < allData[position].length) {
+                                target.splice(0, target.length)
+                                allData[position].forEach(
+                                    d => target.push(d.id)
+                                )
+                                target.forEach(el => {
+                                    document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(chb => {
+                                        chb.checked = true
+                                    })
+                                })
+                            } else if (target.length === allData[position].length) {
+                                target.forEach(el => {
+                                    document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(chb => {
+                                        chb.checked = false
+                                    })
+                                })    
+                                target.splice(0, target.length)
+                            }
+                        }
+                        
+                        if(target.length < allData[position].length && target.length !== 0) {
+                            headrChbs.forEach(
+                                el => el.indeterminate = true
+                            )
+                        } else if (target.length === 0) {
+                            headrChbs.forEach(el => {
+                                el.checked = false
+                                el.indeterminate = false
+                            })
+                        } else if (target.length === allData[position].length) {
+                            headrChbs.forEach(el => {
+                                el.checked = true
+                                el.indeterminate = false
+                            })
                         }
                     }
                 }
@@ -29,6 +72,28 @@ class ContainerManager {
             }
         }
         this.checkedIds = new Proxy([], checkboxHandler)
+    }
+
+    setHeaderChbStatus()
+    {
+        const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${this.position}"]`)
+        console.log(headrChbs)
+
+        if(this.checkedIds.length < allData[this.position].length && this.checkedIds.length !== 0) {
+            headrChbs.forEach(
+                el => el.indeterminate = true
+            )
+        } else if (this.checkedIds.length === 0) {
+            headrChbs.forEach(el => {
+                el.checked = false
+                el.indeterminate = false
+            })
+        } else if (this.checkedIds.length === allData[this.position].length) {
+            headrChbs.forEach(el => {
+                el.checked = true
+                el.indeterminate = false
+            })
+        }
     }
 
     generateBtnCode() 
@@ -68,7 +133,7 @@ class ContainerManager {
             template.innerHTML = `<table class="table table-bordered tabel-sm cellpadОding="0">
                     <thead>
                         <tr>
-                            <th><input type="checkbox"/></th>
+                            <th><input type="checkbox" data-position="${this.position}"/></th>
                             <th>id</th>
                             <th>name</th>
                             <th>amount</t>
@@ -82,9 +147,12 @@ class ContainerManager {
                     </tbody>
                 </table>`
         const outputTemplate = template.content.cloneNode(true)
+        outputTemplate.querySelector('input[type="checkbox"][data-position]').addEventListener('change', e => {
+            this.checkedIds.toggle()
+        })
         outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
             const id = el.dataset.id
-            el.addEventListener('change', () => 
+            el.addEventListener('change', e => 
             {
                 this.checkedIds.toggle(id)
             })
@@ -114,6 +182,7 @@ const containerProxyHandler = tabs =>
                     const table = smartManager[position].drawTable(allData[position]) 
                     target.innerHTML = ''
                     target.append(table)
+                    smartManager[position].setHeaderChbStatus()
                     if(tabs)
                     {
                         for(let tab in tabs)
