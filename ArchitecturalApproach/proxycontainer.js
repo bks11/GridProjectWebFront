@@ -1,4 +1,5 @@
 import { genNewDataForGrid } from './dataproc.js'
+import {withCheckBoxHandler} from './hoc.js'
 
 let allData = genNewDataForGrid()
 
@@ -6,79 +7,14 @@ class ContainerManager {
     
     constructor (position) {
         this.position = position
-        const checkboxHandler = {
-            get(target, method)
-            {
-                if(method === 'toggle')
-                {
-                    return function (id) 
-                    {
-                        const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
-                        const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
-                        if(id)
-                        {
-                            if(target.includes(id))
-                            {
-                                target.splice(target.indexOf(id), 1)
-                                checkboxes.forEach(c => c.checked = false)
-                                
-                            } else 
-                            {
-                                target.push(id)
-                                checkboxes.forEach(c => c.checked = true)
-                            } 
-                        } 
-                        else // Header chb action 
-                        {
-                            debugger
-                            if(target.length < allData[position].length) {
-                                target.splice(0, target.length)
-                                allData[position].forEach(
-                                    d => target.push(d.id)
-                                )
-                                target.forEach(el => {
-                                    document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(chb => {
-                                        chb.checked = true
-                                    })
-                                })
-                            } else if (target.length === allData[position].length) {
-                                target.forEach(el => {
-                                    document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(chb => {
-                                        chb.checked = false
-                                    })
-                                })    
-                                target.splice(0, target.length)
-                            }
-                        }
-                        
-                        if(target.length < allData[position].length && target.length !== 0) {
-                            headrChbs.forEach(
-                                el => el.indeterminate = true
-                            )
-                        } else if (target.length === 0) {
-                            headrChbs.forEach(el => {
-                                el.checked = false
-                                el.indeterminate = false
-                            })
-                        } else if (target.length === allData[position].length) {
-                            headrChbs.forEach(el => {
-                                el.checked = true
-                                el.indeterminate = false
-                            })
-                        }
-                    }
-                }
-                return Reflect.get(...arguments)    
-            }
-        }
-        this.checkedIds = new Proxy([], checkboxHandler)
+        //this.checkedIds = new Proxy([], checkboxHandler)
+        this.checkedIds = withCheckBoxHandler([], {position, allData}) //return
     }
+
 
     setHeaderChbStatus()
     {
         const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${this.position}"]`)
-        console.log(headrChbs)
-
         if(this.checkedIds.length < allData[this.position].length && this.checkedIds.length !== 0) {
             headrChbs.forEach(
                 el => el.indeterminate = true

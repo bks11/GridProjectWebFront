@@ -1,4 +1,5 @@
 import { withProxy } from './proxycontainer.js'
+import { genNewDataForGrid } from './dataproc.js'
 
 const tabs = {
     left : document.querySelector('a[data-link="left"]'), 
