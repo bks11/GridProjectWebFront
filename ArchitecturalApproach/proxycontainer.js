@@ -7,14 +7,13 @@ class ContainerManager {
     
     constructor (position) {
         this.position = position
-        //this.checkedIds = new Proxy([], checkboxHandler)
         this.checkedIds = withCheckBoxHandler([], {position, allData}) //return
     }
 
 
-    setHeaderChbStatus()
+    setHeaderChbStatus(outputTemplate)
     {
-        const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${this.position}"]`)
+        const headrChbs = outputTemplate.querySelectorAll(`input[type="checkbox"][data-position="${this.position}"]`)
         if(this.checkedIds.length < allData[this.position].length && this.checkedIds.length !== 0) {
             headrChbs.forEach(
                 el => el.indeterminate = true
@@ -92,7 +91,9 @@ class ContainerManager {
             {
                 this.checkedIds.toggle(id)
             })
-        })
+        }
+        )
+        this.setHeaderChbStatus(outputTemplate)
         return outputTemplate
     }
 }
@@ -118,7 +119,7 @@ const containerProxyHandler = tabs =>
                     const table = smartManager[position].drawTable(allData[position]) 
                     target.innerHTML = ''
                     target.append(table)
-                    smartManager[position].setHeaderChbStatus()
+                    //smartManager[position].setHeaderChbStatus()
                     if(tabs)
                     {
                         for(let tab in tabs)
