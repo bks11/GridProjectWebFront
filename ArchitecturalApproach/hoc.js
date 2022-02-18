@@ -1,12 +1,12 @@
-const checkBoxHandler = data => ({
+import { getDataByPosition } from './datastore.js'
+
+const checkBoxHandler = position => ({   
     get(target, method) {
-        //debugger
         if(method === 'toggle') 
         {
             return function (id) 
             {
-                const position = data.position
-                const allData = data.allData
+                const data = getDataByPosition(position)
                 const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
                 const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
                 if(id)
@@ -23,25 +23,27 @@ const checkBoxHandler = data => ({
                 } 
                 else // Header chb action 
                 {
-                    if(target.length < allData[position].length) {
+                    const setChecked = flag => 
+                    {
+                        target.forEach(el => document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(
+                            chb => chb.checked = flag
+                        ))
+                    }
+
+                    if(target.length < data.length) 
+                    {
                         target.splice(0, target.length)
-                        allData[position].forEach(d => target.push(d.id))
-                        target.forEach(el => {
-                            document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(
-                                chb => chb.checked = true
-                            )
-                        })
-                    } else if (target.length === allData[position].length) {
-                        target.forEach(el => {
-                            document.querySelectorAll(`input[type="checkbox"][data-id="${el}"]`).forEach(
-                                chb => chb.checked = false
-                            )
-                        })    
+                        data.forEach(d => target.push(d.id))
+                        setChecked(true)
+                    } 
+                    else if (target.length === data.length) 
+                    {
+                        setChecked(false)    
                         target.splice(0, target.length)
                     }
                 }
                 
-                if(target.length < allData[position].length && target.length !== 0) {
+                if(target.length < data.length && target.length !== 0) {
                     headrChbs.forEach(
                         el => el.indeterminate = true
                     )
@@ -50,7 +52,7 @@ const checkBoxHandler = data => ({
                         el.checked = false
                         el.indeterminate = false
                     })
-                } else if (target.length === allData[position].length) {
+                } else if (target.length === data.length) {
                     headrChbs.forEach(el => {
                         el.checked = true
                         el.indeterminate = false
@@ -62,9 +64,6 @@ const checkBoxHandler = data => ({
     }
 })
 
-const withCheckBoxHandler = (checkedIds, grdData) => 
-{
-    return new Proxy(checkedIds, checkBoxHandler(grdData))
-}
+const withCheckBoxHandler = (array, position) => new Proxy(array, checkBoxHandler(position))  //Instiad return!!!!
 
 export { withCheckBoxHandler }

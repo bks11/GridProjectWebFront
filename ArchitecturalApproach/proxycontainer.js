@@ -1,34 +1,12 @@
-import { genNewDataForGrid } from './dataproc.js'
-import {withCheckBoxHandler} from './hoc.js'
 
-let allData = genNewDataForGrid()
+import { withCheckBoxHandler } from './hoc.js'
+import { getDataByPosition } from './datastore.js'
 
 class ContainerManager {
     
     constructor (position) {
         this.position = position
-        this.checkedIds = withCheckBoxHandler([], {position, allData}) //return
-    }
-
-
-    setHeaderChbStatus(outputTemplate)
-    {
-        const headrChbs = outputTemplate.querySelectorAll(`input[type="checkbox"][data-position="${this.position}"]`)
-        if(this.checkedIds.length < allData[this.position].length && this.checkedIds.length !== 0) {
-            headrChbs.forEach(
-                el => el.indeterminate = true
-            )
-        } else if (this.checkedIds.length === 0) {
-            headrChbs.forEach(el => {
-                el.checked = false
-                el.indeterminate = false
-            })
-        } else if (this.checkedIds.length === allData[this.position].length) {
-            headrChbs.forEach(el => {
-                el.checked = true
-                el.indeterminate = false
-            })
-        }
+        this.checkedIds = withCheckBoxHandler([], position) 
     }
 
     generateBtnCode() 
@@ -44,8 +22,9 @@ class ContainerManager {
         }
     }
     
-    drawTable(data) 
+    drawTable() 
     {
+        const data =  getDataByPosition(this.position)  
         const dataMap = data.map(
             x => `<tr>
                         <td>
@@ -82,18 +61,23 @@ class ContainerManager {
                     </tbody>
                 </table>`
         const outputTemplate = template.content.cloneNode(true)
-        outputTemplate.querySelector('input[type="checkbox"][data-position]').addEventListener('change', e => {
-            this.checkedIds.toggle()
-        })
-        outputTemplate.querySelectorAll('input[type="checkbox"][data-id]').forEach(el => {
-            const id = el.dataset.id
-            el.addEventListener('change', e => 
-            {
-                this.checkedIds.toggle(id)
-            })
-        }
+        
+        outputTemplate.querySelectorAll('input[type="checkbox"]').forEach(el => 
+            el.addEventListener('change', e => this.checkedIds.toggle(el.dataset.id))
         )
-        this.setHeaderChbStatus(outputTemplate)
+
+        const headrChb = outputTemplate.querySelector(`input[type="checkbox"][data-position="${this.position}"]`)
+        if(this.checkedIds.length < data.length && this.checkedIds.length !== 0) {
+            headrChb.indeterminate = true
+        } else if (this.checkedIds.length === 0) {
+            headrChb.checked = false
+            headrChb.indeterminate = false
+        } else if (this.checkedIds.length === data.length) {
+            
+            headrChb.checked = true
+            headrChb.indeterminate = false
+        }
+        
         return outputTemplate
     }
 }
@@ -109,17 +93,16 @@ let withProxy = (targetContainer, tabs) => new Proxy(targetContainer, containerP
 const containerProxyHandler = tabs => 
 ({
     get(target, method, reciver)
-    {        
+    {       
         if(typeof target[method] == 'function')
 	        return function (...args) 
             {
 		        if(method === 'setAttribute') 
                 {
                     const position = args[1]
-                    const table = smartManager[position].drawTable(allData[position]) 
+                    const table = smartManager[position].drawTable()   
                     target.innerHTML = ''
                     target.append(table)
-                    //smartManager[position].setHeaderChbStatus()
                     if(tabs)
                     {
                         for(let tab in tabs)

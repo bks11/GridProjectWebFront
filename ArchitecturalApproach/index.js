@@ -1,5 +1,5 @@
 import { withProxy } from './proxycontainer.js'
-import { genNewDataForGrid } from './dataproc.js'
+import { getInitData } from './datastore.js'
 
 const tabs = {
     left : document.querySelector('a[data-link="left"]'), 
@@ -35,6 +35,7 @@ const
     }
     
     window.onload = event => {
+        getInitData()
         addEvents(event)
         renderTables()
     }
