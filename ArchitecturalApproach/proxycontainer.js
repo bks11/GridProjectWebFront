@@ -1,6 +1,6 @@
 
 import { withCheckBoxHandler } from './hoc.js'
-import { getDataByPosition } from './datastore.js'
+import { getDataByPosition, moveRow } from './datastore.js'
 
 class ContainerManager {
     
@@ -9,10 +9,10 @@ class ContainerManager {
         this.checkedIds = withCheckBoxHandler([], position) 
     }
 
-    generateBtnCode() 
+    generateBtnCode(id) 
     {
-        const btnToRight = '<button class="btn btn-sm btn-outline-dark">></button>'
-        const btnToLeft = '<button class="btn btn-sm btn-outline-dark"><</button>'
+        const btnToRight = `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="right">></button>`
+        const btnToLeft = `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="left"><</button>`
         if(this.position === 'left') {
             return btnToRight
         } else if(this.position === 'center') {
@@ -39,7 +39,7 @@ class ContainerManager {
                         <td>${x.date}</td>
                         <td align="center">${x.flag ? '<i class="fas fa-flag"></i>' : '<i class="far fa-flag"></i>'}</td>
                         <td>
-                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode()}</div>
+                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode(x.id)}</div>
                         </td>
                     </tr>`),
 
@@ -65,6 +65,8 @@ class ContainerManager {
         outputTemplate.querySelectorAll('input[type="checkbox"]').forEach(el => 
             el.addEventListener('change', e => this.checkedIds.toggle(el.dataset.id))
         )
+        outputTemplate.querySelectorAll('button').forEach(b => 
+            b.addEventListener('click', e => moveRow(b.dataset.id, b.dataset.direct, this.position)))
 
         const headrChb = outputTemplate.querySelector(`input[type="checkbox"][data-position="${this.position}"]`)
         if(this.checkedIds.length < data.length && this.checkedIds.length !== 0) {
@@ -73,7 +75,6 @@ class ContainerManager {
             headrChb.checked = false
             headrChb.indeterminate = false
         } else if (this.checkedIds.length === data.length) {
-            
             headrChb.checked = true
             headrChb.indeterminate = false
         }
