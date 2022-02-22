@@ -6,25 +6,13 @@ const getInitData = () =>  commonData = genNewDataForGrid()
 
 const getDataByPosition = position => commonData[position]
 
-const moveRow = (id, direction, position) => 
+const moveRow = ({ id, from, to }) => 
 {
-    let idx = commonData[position].findIndex(d => d.id === id)
-        
-        const moveAction = (idx, aimPosition) => 
-        {
-            let aim = getDataByPosition(aimPosition)
-            const rec = commonData[position].splice(idx, 1)
-            aim.splice(aim.length, 0, rec[0] )
-        }
-        
-        if(position === 'left' ||  position === 'right') 
-        {
-            moveAction(idx, 'center')
-        } 
-        else 
-        {
-            moveAction(idx, direction)
-        }
+    const idx = commonData[from].findIndex(d => d.id === id)
+    let aim = getDataByPosition(to)
+    const rec = commonData[from].splice(idx, 1)
+    aim.push(rec[0])        
 }
 
 export { getInitData, getDataByPosition, moveRow }
+      

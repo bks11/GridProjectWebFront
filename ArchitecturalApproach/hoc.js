@@ -1,4 +1,4 @@
-import { getDataByPosition } from './datastore.js'
+import { getDataByPosition, moveRow } from './datastore.js'
 
 const checkBoxHandler = position => ({   
     get(target, method) {
@@ -64,6 +64,26 @@ const checkBoxHandler = position => ({
     }
 })
 
+const tableRefreshHandler = containers => 
+({
+    apply()
+    {
+        const result  = Reflect.apply(...arguments)
+        const from = arguments[2][0].from
+        const to = arguments[2][0].to
+        
+        containers.forEach(c => 
+            {
+                if(c.getAttribute('data-position') === from) c.setAttribute('data-position', from)
+                if(c.getAttribute('data-position') === to) c.setAttribute('data-position', to)
+            }
+        )
+        return result
+    }
+})
+
+const withRefreshTableHandler = (target, containers) => new Proxy(target, tableRefreshHandler(containers))
+
 const withCheckBoxHandler = (array, position) => new Proxy(array, checkBoxHandler(position))  //Instiad return!!!!
 
-export { withCheckBoxHandler }
+export { withCheckBoxHandler, withRefreshTableHandler }

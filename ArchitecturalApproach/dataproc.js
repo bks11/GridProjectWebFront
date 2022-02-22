@@ -28,8 +28,7 @@ const generateDate = () =>
 
 const capitalizeFirstLetter = ([ first, ...rest ], locale = navigator.language) =>
   first.toLocaleUpperCase(locale) + rest.join('')  //substring(1)
-///
-///
+
 const genGridDataItem = (gridPosition) =>
 {
     const n = generateNumber()

@@ -1,12 +1,15 @@
 
-import { withCheckBoxHandler } from './hoc.js'
+import { withCheckBoxHandler, withRefreshTableHandler } from './hoc.js'
 import { getDataByPosition, moveRow } from './datastore.js'
+
+const containers = []
 
 class ContainerManager {
     
     constructor (position) {
         this.position = position
         this.checkedIds = withCheckBoxHandler([], position) 
+        this.moveRow = withRefreshTableHandler(moveRow, containers)
     }
 
     generateBtnCode(id) 
@@ -66,7 +69,17 @@ class ContainerManager {
             el.addEventListener('change', e => this.checkedIds.toggle(el.dataset.id))
         )
         outputTemplate.querySelectorAll('button').forEach(b => 
-            b.addEventListener('click', e => moveRow(b.dataset.id, b.dataset.direct, this.position)))
+            b.addEventListener('click', e => 
+            {
+                const moveOption = 
+                {
+                    id      : b.dataset.id,
+                    from    : this.position,
+                    to      : (this.position === 'left' || this.position === 'right') ? 'center' : b.dataset.direct
+                }                
+                this.moveRow(moveOption)
+            })
+        )
 
         const headrChb = outputTemplate.querySelector(`input[type="checkbox"][data-position="${this.position}"]`)
         if(this.checkedIds.length < data.length && this.checkedIds.length !== 0) {
@@ -89,12 +102,16 @@ const smartManager = {
     right: new ContainerManager('right')
 }
 
-let withProxy = (targetContainer, tabs) => new Proxy(targetContainer, containerProxyHandler(tabs))
+const withProxy = (targetContainer, tabs) => {
+     const container = new Proxy(targetContainer, containerProxyHandler(tabs))
+     containers.push(container)
+     return container
+}
 
 const containerProxyHandler = tabs => 
 ({
     get(target, method, reciver)
-    {       
+    {   
         if(typeof target[method] == 'function')
 	        return function (...args) 
             {
