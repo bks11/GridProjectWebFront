@@ -1,0 +1,79 @@
+/* .selected{
+  background-color: dodgerblue;
+  color: antiquewhite;
+} */
+.content{
+    background: #16a085;
+   }
+.content{
+    width: 100%;
+    height: 500px;
+    margin: 0 auto;
+    padding: 30px;
+  }
+  .nav-pills{
+    width: 100%;
+  }
+  .nav-item{
+    width: 33%;
+    
+  }
+  .nav-pills .nav-link{
+    font-weight: bold;
+    padding-top: 13px;
+    text-align: center;
+    background: #343436;
+    color: #fff;
+    border-radius: 30px;
+    height: 100px;
+  }
+  .nav-pills .nav-link.active{
+    background: #fff;
+    color: #000;
+  }
+  .tab-content{
+    position: relative;
+    width: 99%;
+    height: auto;
+    margin-top: -50px;
+    background: #fff;
+    color: #000;
+    border-radius: 30px;
+    z-index: 1000;
+    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.4);
+    padding: 30px;
+    margin-bottom: 50px;
+  }
+  .tab-content button{
+    border-radius: 15px;
+    width: 100px;
+    margin: 0 auto;
+    float: right;
+  }
+  #left-div, #center-div, #right-div{
+    height: 280px;
+    overflow: auto;
+  }
+  #left-content, #center-content, #right-content {
+    height: 350px;
+    overflow: auto;
+  }
+  .column-invisible{
+    visibility:hidden;
+  }
+  
+  .tableFixHead          { overflow: auto; height: 100px; }
+  .tableFixHead thead th { position: sticky; top: 0; z-index: 1; background-color: rgb(110, 110, 110);}
+
+    /* Just common table stuff. Really. */
+  table  { border-collapse: collapse; width: 100%; font-size: xx-small;}
+  th, td { padding: 1px 1px; }
+  td i 
+{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
