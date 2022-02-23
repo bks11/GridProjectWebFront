@@ -78,6 +78,7 @@ class ContainerManager {
                     to      : (this.position === 'left' || this.position === 'right') ? 'center' : b.dataset.direct
                 }                
                 this.moveRow(moveOption)
+                this.checkedIds.toggle(b.dataset.id, true)
             })
         )
 

@@ -4,12 +4,16 @@ const checkBoxHandler = position => ({
     get(target, method) {
         if(method === 'toggle') 
         {
-            return function (id) 
+            return function (id, isMove) 
             {
                 const data = getDataByPosition(position)
                 const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
                 const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
-                if(id)
+                if( id && isMove) 
+                {
+                    if(target.includes(id)) target.splice(target.indexOf(id), 1)
+                } 
+                else if(id && isMove === undefined)
                 {
                     if(target.includes(id))
                     {
@@ -66,11 +70,12 @@ const checkBoxHandler = position => ({
 
 const tableRefreshHandler = containers => 
 ({
-    apply()
+    apply(target, thisArgs, reciver)
     {
         const result  = Reflect.apply(...arguments)
-        const from = arguments[2][0].from
-        const to = arguments[2][0].to
+        const from = reciver[0].from
+        const to = reciver[0].to
+        const id = reciver[0].id
         
         containers.forEach(c => 
             {
