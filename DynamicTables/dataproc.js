@@ -52,11 +52,10 @@ const genNewDataForGrid = () =>
 {    
     //debugger
     let data = {
-        left:   genDataForGrid('left'),
-        center: genDataForGrid('center'),
-        right:  genDataForGrid('right'),
-    } 
-    //debugger    
+        a:   genDataForGrid('a'),
+        b: genDataForGrid('b'),
+        c:  genDataForGrid('c')
+    }    
     return data
 }
 

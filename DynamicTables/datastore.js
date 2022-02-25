@@ -4,6 +4,8 @@ let commonData
 
 const getInitData = () =>  commonData = genNewDataForGrid()
 
+const getFullData = () => commonData
+
 const getDataByPosition = position => commonData[position]
 
 const moveRow = ({ id, from, to }) => 
@@ -14,5 +16,5 @@ const moveRow = ({ id, from, to }) =>
     aim.push(rec[0])        
 }
 
-export { getInitData, getDataByPosition, moveRow }
+export { getInitData, getDataByPosition, moveRow, getFullData }
       

@@ -50,14 +50,17 @@
     margin: 0 auto;
     float: right;
   }
-  #left-div, #center-div, #right-div{
+  
+  div.tableFixHead {
     height: 280px;
     overflow: auto;
   }
-  #left-content, #center-content, #right-content {
+  
+  a {
     height: 350px;
     overflow: auto;
   }
+
   .column-invisible{
     visibility:hidden;
   }

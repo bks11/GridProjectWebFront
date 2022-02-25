@@ -1,8 +1,10 @@
 
 import { withCheckBoxHandler, withRefreshTableHandler } from './hoc.js'
-import { getDataByPosition, moveRow } from './datastore.js'
+import { getDataByPosition, moveRow, getFullData } from './datastore.js'
 
 const containers = []
+
+let fullData = {}
 
 class ContainerManager {
     
@@ -11,20 +13,24 @@ class ContainerManager {
         this.checkedIds = withCheckBoxHandler([], position) 
         this.moveRow = withRefreshTableHandler(moveRow, containers)
     }
-
-    generateBtnCode(id) 
+    
+    generateBtnCode(id, position) 
     {
-        const btnToRight = `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="right">></button>`
-        const btnToLeft = `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="left"><</button>`
-        if(this.position === 'left') {
-            return btnToRight
-        } else if(this.position === 'center') {
-            return btnToLeft + btnToRight
-        } else if(this.position === 'right') {
-            return btnToLeft
+        const positionsArr = Object.keys(fullData)
+        const dataPosCount = positionsArr.length 
+        
+        const idx = positionsArr.indexOf(position)
+        if(idx === 0) 
+            return `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="${positionsArr[1]}">></button>`
+        else if(idx === dataPosCount - 1)
+            return `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="${positionsArr[dataPosCount - 2]}"><</button>`
+        else 
+        {
+            return `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="${positionsArr[idx - 1]}"><</button>` +
+                `<button class="btn btn-sm btn-outline-dark" data-id="${id}" data-direct="${positionsArr[idx + 1]}">></button>`
         }
     }
-    
+
     drawTable() 
     {
         const data =  getDataByPosition(this.position)  
@@ -42,7 +48,7 @@ class ContainerManager {
                         <td>${x.date}</td>
                         <td align="center">${x.flag ? '<i class="fas fa-flag"></i>' : '<i class="far fa-flag"></i>'}</td>
                         <td>
-                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode(x.id)}</div>
+                            <div class="btn-group btn-group-sm"> ${this.generateBtnCode(x.id, this.position)}</div>
                         </td>
                     </tr>`),
 
@@ -75,7 +81,7 @@ class ContainerManager {
                 {
                     id      : b.dataset.id,
                     from    : this.position,
-                    to      : (this.position === 'left' || this.position === 'right') ? 'center' : b.dataset.direct
+                    to      : b.dataset.direct
                 }                
                 this.moveRow(moveOption)
                 this.checkedIds.toggle(b.dataset.id, true)
@@ -97,10 +103,15 @@ class ContainerManager {
     }
 }
 
-const smartManager = {
-    left: new ContainerManager('left'),
-    center: new ContainerManager('center'),
-    right: new ContainerManager('right')
+let smartManager = {}
+
+const fillSmartManager = () => 
+{
+    fullData = getFullData()
+    const positionsArr = Object.keys(fullData)
+    positionsArr.forEach(p => {
+        smartManager[p] = new ContainerManager(p)
+    })
 }
 
 const withProxy = (targetContainer, tabs) => {
@@ -137,4 +148,4 @@ const containerProxyHandler = tabs =>
     }
 })
 
-export { withProxy }
+export { withProxy, fillSmartManager }
