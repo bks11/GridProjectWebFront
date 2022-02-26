@@ -1,5 +1,5 @@
 import { withProxy, fillSmartManager } from './proxycontainer.js'
-import { getInitData } from './datastore.js'
+import { getInitData, getGridsParams } from './datastore.js'
 
 const topContainer = document.querySelector('#top-table-container')
 const pillsContainer = document.querySelector('.nav')
@@ -8,38 +8,35 @@ const divs = {}
 
 const createContainers = () => 
 {
-    const data = getInitData()
+    const positionsArr = getGridsParams()
     let topDivs = ''
     let bottomPills = ''
     let iActive = true
-    for(let prop in data) 
-    {
-        topDivs += `<div class="col-sm-4 tableFixHead" id="${prop}-div" data-position="${prop}"></div>`
+    positionsArr.forEach(p => {
+        topDivs += `<div class="col-sm-4 tableFixHead" id="${p}-div" data-position="${p}"></div>`
         bottomPills += `<li class="nav-item">
                             <a  class="nav-link ${iActive ? 'active': ''}" 
-                            id="tab-${prop}" 
+                            id="tab-${p}" 
                             data-toggle="pill" 
                             href="javascript:void(0)" 
-                            aria-controls="${prop}-content" 
-                            data-link="${prop}">${prop}</a>
+                            aria-controls="${p}-content" 
+                            data-link="${p}">${p}</a>
                         </li>`
-        
-        
         iActive = false
-    }
+    })
+    
     topContainer.innerHTML = ''
     topContainer.innerHTML = topDivs
     pillsContainer.innerHTML = ''
     pillsContainer.innerHTML = bottomPills
     
     iActive = true
-    for(let prop in data) 
-    {
-        tabs[prop] = document.querySelector(`a[data-link="${prop}"]`)
-        divs[prop] = withProxy(document.querySelector(`#${prop}-div`))
+    positionsArr.forEach(p => {
+        tabs[p] = document.querySelector(`a[data-link="${p}"]`)
+        divs[p] = withProxy(document.querySelector(`#${p}-div`))
         if(iActive) divs['gridcontainer'] = withProxy(document.querySelector('#gridcontainer'), tabs) 
         iActive = false
-    }
+    })
 }
     
 const renderTables = () => {
@@ -68,6 +65,7 @@ const push = event => {
 }
     
     window.onload = event => {
+        getInitData()
         createContainers()
         addEvents(event)
         renderTables()

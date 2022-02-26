@@ -1,4 +1,4 @@
-import { getDataByPosition, moveRow } from './datastore.js'
+import { getDataByPosition } from './datastore.js'
 
 const checkBoxHandler = position => ({   
     get(target, method) {

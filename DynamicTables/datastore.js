@@ -1,10 +1,11 @@
 import { genNewDataForGrid } from './dataproc.js'
 
 let commonData
+let gridParams
 
 const getInitData = () =>  commonData = genNewDataForGrid()
 
-const getFullData = () => commonData
+const getGridsParams = () => gridParams = Object.keys(commonData)
 
 const getDataByPosition = position => commonData[position]
 
@@ -16,5 +17,4 @@ const moveRow = ({ id, from, to }) =>
     aim.push(rec[0])        
 }
 
-export { getInitData, getDataByPosition, moveRow, getFullData }
-      
+export { getInitData, getDataByPosition, moveRow, getGridsParams }      

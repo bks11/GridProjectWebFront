@@ -1,10 +1,7 @@
-
 import { withCheckBoxHandler, withRefreshTableHandler } from './hoc.js'
-import { getDataByPosition, moveRow, getFullData } from './datastore.js'
+import { getDataByPosition, moveRow, getGridsParams } from './datastore.js'
 
 const containers = []
-
-let fullData = {}
 
 class ContainerManager {
     
@@ -16,7 +13,7 @@ class ContainerManager {
     
     generateBtnCode(id, position) 
     {
-        const positionsArr = Object.keys(fullData)
+        const positionsArr = getGridsParams()
         const dataPosCount = positionsArr.length 
         
         const idx = positionsArr.indexOf(position)
@@ -107,8 +104,7 @@ let smartManager = {}
 
 const fillSmartManager = () => 
 {
-    fullData = getFullData()
-    const positionsArr = Object.keys(fullData)
+    const positionsArr = getGridsParams()
     positionsArr.forEach(p => {
         smartManager[p] = new ContainerManager(p)
     })
