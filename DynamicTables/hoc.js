@@ -4,16 +4,13 @@ const checkBoxHandler = position => ({
     get(target, method) {
         if(method === 'toggle') 
         {
-            return function (id, isMove) 
+            return function (id) 
             {
                 const data = getDataByPosition(position)
                 const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
                 const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
-                if( id && isMove) 
-                {
-                    if(target.includes(id)) target.splice(target.indexOf(id), 1)
-                } 
-                else if(id && isMove === undefined)
+                
+                if(id)
                 {
                     if(target.includes(id))
                     {
@@ -46,29 +43,13 @@ const checkBoxHandler = position => ({
                         target.splice(0, target.length)
                     }
                 }
-                
-                if(target.length < data.length && target.length !== 0) {
-                    headrChbs.forEach(
-                        el => el.indeterminate = true
-                    )
-                } else if (target.length === 0) {
-                    headrChbs.forEach(el => {
-                        el.checked = false
-                        el.indeterminate = false
-                    })
-                } else if (target.length === data.length) {
-                    headrChbs.forEach(el => {
-                        el.checked = true
-                        el.indeterminate = false
-                    })
-                }
             }
         }
         return Reflect.get(...arguments)
     }
 })
 
-const tableRefreshHandler = containers => 
+const moveRowHandler = containers => 
 ({
     apply(target, thisArgs, reciver)
     {
@@ -87,8 +68,44 @@ const tableRefreshHandler = containers =>
     }
 })
 
-const withRefreshTableHandler = (target, containers) => new Proxy(target, tableRefreshHandler(containers))
 
-const withCheckBoxHandler = (array, position) => new Proxy(array, checkBoxHandler(position))  //Instiad return!!!!
 
-export { withCheckBoxHandler, withRefreshTableHandler }
+const headerCheckboxHandler = () =>
+({
+    get(target, method)
+    {
+        if(method === 'setHeaderChbStatus')
+        {
+            return function(chekedIdsArr, position)
+            {
+                const data = getDataByPosition(position)
+                const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
+                if(chekedIdsArr.length < data.length && chekedIdsArr.length !== 0) {
+                    headrChbs.forEach(
+                        el => el.indeterminate = true
+                    )
+                } else if (chekedIdsArr.length === 0) {
+                    headrChbs.forEach(el => {
+                        el.checked = false
+                        el.indeterminate = false
+                    })
+                } else if (chekedIdsArr.length === data.length) {
+                    headrChbs.forEach(el => {
+                        el.checked = true
+                        el.indeterminate = false
+                    })
+                }
+
+            }
+        }
+        return Reflect.get(...arguments)
+    }
+})
+
+const moveRowProxy = (target, containers) => new Proxy(target, moveRowHandler(containers))
+
+const checkBoxProxy = (array, position) => new Proxy(array, checkBoxHandler(position))  //Instiad return!!!!
+
+const headerCheckboxProxy = (target) => new Proxy(target, headerCheckboxHandler())
+
+export { checkBoxProxy, moveRowProxy, headerCheckboxProxy}

@@ -1,4 +1,4 @@
-import { withCheckBoxHandler, withRefreshTableHandler } from './hoc.js'
+import { checkBoxProxy, moveRowProxy, headerCheckboxProxy } from './hoc.js'
 import { getDataByPosition, moveRow, getGridsParams } from './datastore.js'
 
 const containers = []
@@ -7,8 +7,8 @@ class ContainerManager {
     
     constructor (position) {
         this.position = position
-        this.checkedIds = withCheckBoxHandler([], position) 
-        this.moveRow = withRefreshTableHandler(moveRow, containers)
+        this.checkedIds = headerCheckboxProxy(checkBoxProxy([], position)) 
+        this.moveRow = headerCheckboxProxy(moveRowProxy(moveRow, containers))
     }
     
     generateBtnCode(id, position) 
@@ -69,7 +69,11 @@ class ContainerManager {
         const outputTemplate = template.content.cloneNode(true)
         
         outputTemplate.querySelectorAll('input[type="checkbox"]').forEach(el => 
-            el.addEventListener('change', e => this.checkedIds.toggle(el.dataset.id))
+            el.addEventListener('change', e => 
+            {
+                this.checkedIds.toggle(el.dataset.id)
+                this.checkedIds.setHeaderChbStatus(this.checkedIds, this.position)
+            })
         )
         outputTemplate.querySelectorAll('button').forEach(b => 
             b.addEventListener('click', e => 
@@ -81,7 +85,8 @@ class ContainerManager {
                     to      : b.dataset.direct
                 }                
                 this.moveRow(moveOption)
-                this.checkedIds.toggle(b.dataset.id, true)
+                this.moveRow.setHeaderChbStatus(this.checkedIds, this.position)
+                if(this.checkedIds.includes(moveOption.id)) this.checkedIds.splice(this.checkedIds.indexOf(moveOption.id), 1)
             })
         )
 
@@ -110,7 +115,7 @@ const fillSmartManager = () =>
     })
 }
 
-const withProxy = (targetContainer, tabs) => {
+const containerProxy = (targetContainer, tabs) => {
      const container = new Proxy(targetContainer, containerProxyHandler(tabs))
      containers.push(container)
      return container
@@ -144,4 +149,4 @@ const containerProxyHandler = tabs =>
     }
 })
 
-export { withProxy, fillSmartManager }
+export { containerProxy, fillSmartManager }

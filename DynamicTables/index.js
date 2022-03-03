@@ -1,4 +1,4 @@
-import { withProxy, fillSmartManager } from './proxycontainer.js'
+import { containerProxy, fillSmartManager } from './proxycontainer.js'
 import { getInitData, getGridsParams } from './datastore.js'
 
 const topContainer = document.querySelector('#top-table-container')
@@ -32,9 +32,9 @@ const createContainers = () =>
     positionsArr.forEach(p => {
         tabs[p] = document.querySelector(`a[data-link="${p}"]`)
         tabs[p].addEventListener('click', push)
-        divs[p] = withProxy(document.querySelector(`#${p}-div`))
+        divs[p] = containerProxy(document.querySelector(`#${p}-div`))
     })
-    divs['gridcontainer'] = withProxy(document.querySelector('#gridcontainer'), tabs) 
+    divs['gridcontainer'] = containerProxy(document.querySelector('#gridcontainer'), tabs) 
 }
     
 const renderTables = () => {
