@@ -19,7 +19,6 @@ const createContainers = () =>
                             id="tab-${p}" 
                             data-toggle="pill" 
                             href="javascript:void(0)" 
-                            aria-controls="${p}-content" 
                             data-link="${p}">${p}</a>
                         </li>`
     })

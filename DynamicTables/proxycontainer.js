@@ -84,9 +84,10 @@ class ContainerManager {
                     from    : this.position,
                     to      : b.dataset.direct
                 }                
+                if(this.checkedIds.includes(moveOption.id)) this.checkedIds.splice(this.checkedIds.indexOf(moveOption.id), 1)
                 this.moveRow(moveOption)
                 this.moveRow.setHeaderChbStatus(this.checkedIds, this.position)
-                if(this.checkedIds.includes(moveOption.id)) this.checkedIds.splice(this.checkedIds.indexOf(moveOption.id), 1)
+                
             })
         )
 
