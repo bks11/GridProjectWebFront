@@ -3,7 +3,6 @@ import { getInitData, getGridsParams } from './datastore.js'
 
 const topContainer = document.querySelector('#top-table-container')
 const pillsContainer = document.querySelector('.nav')
-//const tabs = {}
 const divs = {}
 
 const createContainers = () => 

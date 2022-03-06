@@ -7,8 +7,8 @@ class ContainerManager {
     
     constructor (position) {
         this.position = position
-        this.checkedIds = headerCheckboxProxy(checkBoxProxy([], position)) 
-        this.moveRow = headerCheckboxProxy(moveRowProxy(moveRow, containers))
+        this.checkedIds = headerCheckboxProxy(checkBoxProxy([]), position)
+        this.moveRow = headerCheckboxProxy(moveRowProxy(moveRow, containers), position)
     }
     
     generateBtnCode(id, position) 
@@ -72,7 +72,6 @@ class ContainerManager {
             el.addEventListener('change', e => 
             {
                 this.checkedIds.toggle(el.dataset.id)
-                this.checkedIds.setHeaderChbStatus(this.checkedIds, this.position)
             })
         )
         outputTemplate.querySelectorAll('button').forEach(b => 
@@ -84,10 +83,10 @@ class ContainerManager {
                     from    : this.position,
                     to      : b.dataset.direct
                 }                
-                if(this.checkedIds.includes(moveOption.id)) this.checkedIds.splice(this.checkedIds.indexOf(moveOption.id), 1)
+                if(this.checkedIds.includes(moveOption.id)) 
+                    this.checkedIds.splice(this.checkedIds.indexOf(moveOption.id), 1)
+
                 this.moveRow(moveOption)
-                this.moveRow.setHeaderChbStatus(this.checkedIds, this.position)
-                
             })
         )
 
