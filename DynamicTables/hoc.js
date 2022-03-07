@@ -1,4 +1,5 @@
 import { getDataByPosition } from './datastore.js'
+import { setHeaderChbStatus } from './headerChb.js'
 
 const checkBoxHandler  = 
 {   
@@ -75,24 +76,9 @@ const headerCheckboxHandler = position =>
 {
     const handler = array => 
     {
-        debugger
         const data = getDataByPosition(position)
         const headrChbs = document.querySelectorAll(`input[type="checkbox"][data-position="${position}"]`)
-        if(array.length < data.length && array.length !== 0) {
-            headrChbs.forEach(
-                el => el.indeterminate = true
-            )
-        } else if (array.length === 0) {
-            headrChbs.forEach(el => {
-                el.checked = false
-                el.indeterminate = false
-            })
-        } else if (array.length === data.length) {
-            headrChbs.forEach(el => {
-                el.checked = true
-                el.indeterminate = false
-            })
-        }
+        setHeaderChbStatus(array, data, headrChbs)
     }
     return {
         get(target, method, reciever)

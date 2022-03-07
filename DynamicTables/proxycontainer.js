@@ -1,5 +1,6 @@
 import { checkBoxProxy, moveRowProxy, headerCheckboxProxy } from './hoc.js'
 import { getDataByPosition, moveRow, getGridsParams } from './datastore.js'
+import { setHeaderChbStatus } from './headerChb.js'
 
 const containers = []
 
@@ -89,18 +90,9 @@ class ContainerManager {
                 this.moveRow(moveOption)
             })
         )
-
-        const headrChb = outputTemplate.querySelector(`input[type="checkbox"][data-position="${this.position}"]`)
-        if(this.checkedIds.length < data.length && this.checkedIds.length !== 0) {
-            headrChb.indeterminate = true
-        } else if (this.checkedIds.length === 0) {
-            headrChb.checked = false
-            headrChb.indeterminate = false
-        } else if (this.checkedIds.length === data.length) {
-            headrChb.checked = true
-            headrChb.indeterminate = false
-        }
-        
+        const headrChb = outputTemplate.querySelectorAll(`input[type="checkbox"][data-position="${this.position}"]`)
+        setHeaderChbStatus(this.checkedIds, data, headrChb)
+    
         return outputTemplate
     }
 }
