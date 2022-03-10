@@ -17,16 +17,4 @@ const setHeaderChbStatus = (checkedIdsArr, data, checkboxes) =>
     }
 }
 
-const testReduce = () => 
-{
-    const arr = ['a', 'b', 'c']
-    debugger
-    let v = arr.reduce((init, result) => {
-
-        return init + `<div class="col-sm-4 tableFixHead" id="${result}-div" data-position="${result}"></div>`
-    }, '')
-    debugger
-    return v
-}
-
 export { setHeaderChbStatus }
