@@ -9,7 +9,6 @@ const checkBoxHandler  =
         {
             return function (id, position) 
             {
-                debugger
                 const data = getDataByPosition(position)
                 const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-id="${id}"]`)
                 
@@ -88,9 +87,7 @@ const headerCheckboxHandler = position =>
                 return function()
                 {
                     const result = target[method](...arguments, position)
-                    debugger
                     handler(target)    
-                    debugger
                     return result
                 }
             }
@@ -98,9 +95,7 @@ const headerCheckboxHandler = position =>
         },
         apply(target, thisArgs, args)
         {
-            debugger
             const result = Reflect.apply(...arguments)
-            debugger
             return result
         }
     }

@@ -1,54 +1,58 @@
-import { containerProxy, fillSmartManager } from './proxycontainer.js'
-import { getInitData, getGridsParams } from './datastore.js'
+import { containerProxy, ContainerManager } from './proxycontainer.js'
+import { setInitData, getGridsParams } from './datastore.js'
 
-const topContainer = document.querySelector('#top-table-container')
-const pillsContainer = document.querySelector('.nav')
-const divs = {}
+const topContainer      = document.querySelector('#top-table-container')
+const pillsContainer    = document.querySelector('.nav')
+let containerManager    = {}
 
-const createContainers = () => 
+const createContainers = (positionsArr) => 
 {
-    const positionsArr = getGridsParams()
-    debugger
-    const topDivs = positionsArr.reduce((init, result) => init + `<div class="col-sm-4 tableFixHead" id="${result}-div" data-position="${result}"></div>`, '')
-    const bottomPills = positionsArr.reduce((init, result, index) => init +
+    const topDivs = positionsArr.reduce((init, key) => init + 
+                                `<div class="col-sm-4 tableFixHead" id="${key}-div" data-position="${key}"></div>`, '')
+    const bottomPills = positionsArr.reduce((init, key, index) => init +
                     `<li class="nav-item">
                         <a  class="nav-link ${index === 0 ? 'active': ''}" 
-                            id="tab-${result}" 
+                            id="tab-${key}" 
                             data-toggle="pill" 
                             href="javascript:void(0)" 
-                            data-link="${result}">${result}</a>
-                    </li>`, '')    
+                            data-link="${key}">${key}</a>
+                    </li>`,'')    
     
     topContainer.innerHTML = topDivs
     pillsContainer.innerHTML = bottomPills
     const tabs = {}
-    positionsArr.forEach(p => {
-        tabs[p] = document.querySelector(`a[data-link="${p}"]`)
-        tabs[p].addEventListener('click', push)
-        divs[p] = containerProxy(document.querySelector(`#${p}-div`))
-    })
-    divs['gridcontainer'] = containerProxy(document.querySelector('#gridcontainer'), tabs) 
-}
+    const divs = {}
     
-const renderTables = () => {
-    fillSmartManager()
-    for(let key in divs)
-    {   
-        if(Object.keys(divs).indexOf(key) === 0) divs['gridcontainer'].setAttribute('data-position', key)
-        if(key !== 'gridcontainer') divs[key].setAttribute('data-position', key)
-    }
+    positionsArr.reduce((init, key) => 
+    {
+        tabs[key] = document.querySelector(`a[data-link="${key}"]`)
+        tabs[key].addEventListener('click', push)
+    }, positionsArr[0])
+    
+    positionsArr.reduce((init, key) => divs[key] = containerProxy(document.querySelector(`#${key}-div`)), positionsArr[0])
+    divs['gridcontainer'] = containerProxy(document.querySelector('#gridcontainer'), tabs) 
+
+    return divs
 }
+
+const getContainer = (key) => containerManager.containers[key]
+
 
 const push = event => {
     const id = event.target.id
     const position = event.target.getAttribute('data-link')
-    divs['gridcontainer'].setAttribute('data-position', position)
-    window.history.pushState({ id }, ``, `/${position}`);
+    containerManager.divs['gridcontainer'].setAttribute('data-position', position)
+    window.history.pushState({ id }, ``, `/${position}`)
 }
+   
+window.onload = () => {
     
-    window.onload = event => {
-        getInitData()
-        createContainers()
-        renderTables()
-    }
+    const positionsArr = setInitData() //    Get data and return keys 
+    const divs = createContainers(positionsArr) 
+    containerManager = new ContainerManager(positionsArr, divs)
+    containerManager.renderTables()
+
+}
+
+export { getContainer }
     
