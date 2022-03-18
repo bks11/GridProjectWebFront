@@ -22,8 +22,16 @@ const createContainers = (positionsArr) =>
     pillsContainer.innerHTML = bottomPills
     
     const tabs = positionsArr.reduce((obj, key) => (obj[key] = document.querySelector(`a[data-link="${key}"]`), obj), {})
-    const divs = positionsArr.reduce((obj, key) => (obj[key] = containerProxy(document.querySelector(`#${key}-div`), obj)), 
-                                                            { gridcontainer : containerProxy(document.querySelector('#gridcontainer'), tabs) })
+    const divs = positionsArr.reduce(
+        (obj, key) => 
+        {
+            obj[key] = containerProxy(document.querySelector(`#${key}-div`))
+            return obj
+        },//function 
+        { 
+            gridcontainer : containerProxy(document.querySelector('#gridcontainer'), tabs) 
+        }//initial value
+    )
 
     positionsArr.forEach(key => tabs[key].addEventListener('click', push(divs.gridcontainer)))
       
